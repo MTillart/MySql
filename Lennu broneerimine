@@ -1,3 +1,28 @@
+#A simple flight booking system.
+
+That would check if:
+	there are any free seats available,
+	all the inserted data matches the data in the database.
+
+###Seat cheking function:
+
+IN lennu_id
+IN kp
+IN klient
+OUT teade
+OUT korras
+
+BEGIN
+SET @kohad_kokku =(SELECT Kohtade_arv FROM LEND WHERE Lend_id=lend);
+SET @kohad_muudud = (SELECT Müüdud_kohad FROM LEND WHERE Lend_id=lend);
+IF (@kohad_kokku > @kohad_muudud) THEN
+RETURN 'true';
+ELSE RETURN 'false';
+END IF;
+END
+
+###Data checking procedure:
+
 BEGIN
 
 START TRANSACTION;
@@ -42,10 +67,10 @@ IF (SELECT Lend_id FROM LEND WHERE Lend_id= Lennu_id) THEN
                 
 IF korras=1 THEN
 BEGIN
-	UPDATE LEND SET Müüdud_kohad = Müüdud_kohad + 1 WHERE 						LEND.Lend_id=lennu_id;
+	UPDATE LEND SET Müüdud_kohad = Müüdud_kohad + 1 WHERE LEND.Lend_id=lennu_id;
 	COMMIT;
     set teade='commit';
-    INSERT INTO LENNU_BRON (Lennu_nr, Kuupäev, 						KLIENT_pk, Lisad) VALUES (lennu_id, kp, klient, 'lisad');
+    INSERT INTO LENNU_BRON (Lennu_nr, Kuupäev,	KLIENT_pk, Lisad) VALUES (lennu_id, kp, klient, 'lisad');
 END;
 ELSE
 	BEGIN		
