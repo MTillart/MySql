@@ -1,0 +1,55 @@
+BEGIN
+
+START TRANSACTION;
+
+IF (SELECT Lend_id FROM LEND WHERE Lend_id= Lennu_id) THEN
+	BEGIN
+    	IF (SELECT vabad_kohad(lennu_id))='true' THEN
+			BEGIN
+                IF (SELECT kuupäev FROM LEND WHERE LEND.Lend_id=lennu_id)=kp THEN
+                BEGIN 
+                	IF (SELECT KLIENT.KLIENT_pk FROM KLIENT WHERE KLIENT.KLIENT_pk=klient) THEN
+       					BEGIN
+                        set korras=1;
+                        END;
+                    ELSE 
+                        BEGIN
+                        	set korras=0;
+                            SET teade='Antud klienti ei leitud';
+                        END;
+                    END IF;
+                END;
+              	ELSE
+                BEGIN
+                	set korras= 0;
+               		SET teade='Sellist kuupäeva ei leitud';
+                END;
+               END IF;
+              END;
+            ELSE
+              	 BEGIN
+					set korras=0;
+					SET teade='Vabu kohti ei ole';
+				 END;
+			END IF;
+            END;
+        ELSE
+            BEGIN
+				set korras=0;
+				SET teade='Sellist lendu ei ole';
+			END;
+		END IF;
+                
+IF korras=1 THEN
+BEGIN
+	UPDATE LEND SET Müüdud_kohad = Müüdud_kohad + 1 WHERE 						LEND.Lend_id=lennu_id;
+	COMMIT;
+    set teade='commit';
+    INSERT INTO LENNU_BRON (Lennu_nr, Kuupäev, 						KLIENT_pk, Lisad) VALUES (lennu_id, kp, klient, 'lisad');
+END;
+ELSE
+	BEGIN		
+		ROLLBACK;
+	END;
+END IF;
+END
